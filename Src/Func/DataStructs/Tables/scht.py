@@ -1,3 +1,11 @@
+"""
+Module to handle a separate chaining hash table (scht) data structure.
+
+This code is based on the implementation proposed by the following authors/books:
+    #. Algorithms, 4th Edition, Robert Sedgewick and Kevin Wayne.
+    #. Data Structure and Algorithms in Python, M.T. Goodrich, R. Tamassia, M.H. Goldwasser.
+"""
+
 # import python modules
 import random as rd
 from typing import Any
@@ -16,7 +24,16 @@ from Src.Func.DataStructs.Tables import entry as me
 from Src.Func.Utils import numbers as num
 
 
-def default_mp_entry_cmp(key: Any, entry: Any) -> int:
+def dflt_mp_entry_cmp(key: Any, entry: Any) -> int:
+    """dflt_mp_entry_cmp _summary_
+
+    Args:
+        key (Any): _description_
+        entry (Any): _description_
+
+    Returns:
+        int: _description_
+    """
     if (key == entry['key']):
         return 0
     elif (key > entry['key']):
@@ -30,6 +47,19 @@ def new_chaining_mp(entries: int = 17,
                     cmp_function=None,
                     key: str = None,
                     rehashable: bool = True) -> dict:
+    """new_chaining_mp _summary_
+
+    Args:
+        entries (int, optional): _description_. Defaults to 17.
+        prime (int, optional): _description_. Defaults to 109345121.
+        alpha (float, optional): _description_. Defaults to 4.0.
+        cmp_function (_type_, optional): _description_. Defaults to None.
+        key (str, optional): _description_. Defaults to None.
+        rehashable (bool, optional): _description_. Defaults to True.
+
+    Returns:
+        dict: _description_
+    """
     try:
         capacity = num.next_prime(entries // alpha)
         scale = rd.randint(1, prime - 1)
@@ -50,15 +80,15 @@ def new_chaining_mp(entries: int = 17,
             key=key
         )
         if cmp_function is None:
-            new_table["cmp_function"] = default_mp_entry_cmp
+            new_table["cmp_function"] = dflt_mp_entry_cmp
         else:
             new_table["cmp_function"] = cmp_function
-        new_table["table"] = arlt.new_array_lt(new_table["cmp_function"],
-                                               new_table["key"])
+        new_table["table"] = arlt.new_list(new_table["cmp_function"],
+                                           new_table["key"])
         i = 0
         while i < capacity:
-            bucket = sllt.new_single_lt(new_table["cmp_function"],
-                                        new_table["key"])
+            bucket = sllt.new_list(new_table["cmp_function"],
+                                   new_table["key"])
             arlt.add_last(new_table["table"], bucket)
             i += 1
         return new_table
@@ -67,6 +97,13 @@ def new_chaining_mp(entries: int = 17,
 
 
 def put(mp: dict, key: Any, value: Any) -> None:
+    """put _summary_
+
+    Args:
+        mp (dict): _description_
+        key (Any): _description_
+        value (Any): _description_
+    """
     try:
         entry = me.new_map_entry(key, value)
         _hash = num.hash_compress(key,
@@ -91,6 +128,15 @@ def put(mp: dict, key: Any, value: Any) -> None:
 
 
 def get(mp: dict, key: Any) -> dict:
+    """get _summary_
+
+    Args:
+        mp (dict): _description_
+        key (Any): _description_
+
+    Returns:
+        dict: _description_
+    """
     try:
         _hash = num.hash_compress(key,
                                   mp["scale"],
@@ -162,8 +208,8 @@ def is_empty(mp: dict) -> bool:
 
 def keys(mp: dict) -> dict:
     try:
-        keys_lt = sllt.new_single_lt(cmp_function=mp["cmp_function"],
-                                     key=mp["key"])
+        keys_lt = sllt.new_list(cmp_function=mp["cmp_function"],
+                                key=mp["key"])
         bucket = None
         _idx = 0
         while _idx < arlt.size(mp["table"]):
@@ -182,8 +228,8 @@ def keys(mp: dict) -> dict:
 
 def values(mp: dict) -> dict:
     try:
-        values_lt = sllt.new_single_lt(cmp_function=mp["cmp_function"],
-                                       key=mp["key"])
+        values_lt = sllt.new_list(cmp_function=mp["cmp_function"],
+                                  key=mp["key"])
         bucket = None
         _idx = 0
         while _idx < arlt.size(mp["table"]):
@@ -212,13 +258,13 @@ def rehash(mp: dict) -> dict:
             mp["size"] = 0
             mp["cur_alpha"] = 0
             mp["capacity"] = _new_cap
-            _new_table = arlt.new_array_lt(mp["cmp_function"],
-                                           mp["key"])
+            _new_table = arlt.new_list(mp["cmp_function"],
+                                       mp["key"])
             _old_table = mp["table"]
             _idx = 0
             while _idx < _new_cap:
-                bucket = sllt.new_single_lt(mp["cmp_function"],
-                                            mp["key"])
+                bucket = sllt.new_list(mp["cmp_function"],
+                                       mp["key"])
                 arlt.add_last(_new_table, bucket)
                 _idx += 1
             mp["table"] = _new_table

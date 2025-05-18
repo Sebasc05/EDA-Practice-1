@@ -43,6 +43,24 @@ def sort(lt: List, sort_crit: Callable[[T, T], bool]) -> List:
         return lt 
     
         # TODO complete the function
+<<<<<<< HEAD
+=======
+        _size = lt.size()    # tamaño de la lista
+        h = 0
+        while h < _size / 3:
+            h = 3 * h + 1
+        while h >= 1:
+            i = h
+            while i < _size:
+                j = i
+                while j >= h and sort_crit(lt.get_element(j),
+                                           lt.get_element(j - h)):
+                    lt.exchange(j, j - h)
+                    j -= h
+                i += 1
+            h //= 3
+        return lt
+>>>>>>> 49de53edb74c4580677f66e5abb67f667f5c851f
     except Exception as e:
         # get current module and function name
         _context = __name__.split(".")[-1]

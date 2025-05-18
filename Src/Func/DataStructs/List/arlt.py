@@ -1,5 +1,5 @@
 # import python libs
-from typing import Any
+from typing import Any, Callable
 # import csv
 # import project libs
 # from Src.Func.DataStructs.List import arl
@@ -15,8 +15,8 @@ This code is based on the implementation proposed by the following authors/books
 """
 
 
-def default_lt_elm_cmp(id1: Any, id2: Any) -> int:
-    """default_lt_elm_cmp is the default comparison function for elements in the array list.
+def dflt_elm_cmp_lt(id1: Any, id2: Any) -> int:
+    """dflt_elm_cmp_lt is the default comparison function for elements in the array list.
 
     Args:
         id1 (Any): first element to compare.
@@ -32,15 +32,15 @@ def default_lt_elm_cmp(id1: Any, id2: Any) -> int:
     return 0
 
 
-def new_array_lt(cmp_function=None, key: str = "id") -> dict:
-    """new_array_lt _summary_
+def new_list(cmp_function: Callable = None, key: str = "id") -> dict:
+    """new_list creates a new array list.
 
     Args:
-        cmp_function (func, optional): function to compare elements. Defaults to None, uses default_lt_elm_cmp.
+        cmp_function (func, optional): function to compare elements. Defaults to None, uses dflt_elm_cmp_lt.
         key (str, optional): key to compare elements in structure. Defaults to "id".
 
     Returns:
-        dict: _description_
+        dict: returns a new array list.
     """
     new_lt = dict(
         elements=[],
@@ -50,7 +50,7 @@ def new_array_lt(cmp_function=None, key: str = "id") -> dict:
         key=key,
     )
     if new_lt["cmp_function"] is None:
-        new_lt["cmp_function"] = default_lt_elm_cmp
+        new_lt["cmp_function"] = dflt_elm_cmp_lt
     else:
         new_lt["cmp_function"] = cmp_function
     return new_lt
@@ -137,7 +137,7 @@ def get_first(lt: dict) -> Any:
 
     Returns:
 
-        Any: returns the first element in the array list.
+        Any: returns the first element in the array list. None if the array list is empty.
     """
     try:
         if lt.get("size") > 0:
@@ -154,7 +154,7 @@ def get_last(lt: dict) -> Any:
         lt (dict): array list to get the last element.
 
     Returns:
-        Any: returns the last element in the array list.
+        Any: returns the last element in the array list. None if the array list is empty.
     """
     try:
         if lt.get("size") > 0:
@@ -172,7 +172,7 @@ def get_element(lt: dict, pos: int) -> Any:
         pos (int): position to get the element.
 
     Returns:
-        Any: returns the element in the specific position of the array list.
+        Any: returns the element in the specific position of the array list. None if the position is invalid.
     """
     try:
         if pos < 0 or pos > lt.get("size") - 1:
@@ -189,14 +189,14 @@ def remove_first(lt: dict) -> Any:
         lt (dict): array list to remove the first element.
 
     Returns:
-        Any: returns the array list without the first element.
+        Any: returns the array list without the first element. None if the array list is empty.
     """
     try:
         if lt.get("size") == 0:
             return None
-        elm = lt.get("elements").pop(0)
+        lt.get("elements").pop(0)
         lt["size"] -= 1
-        return elm
+        return lt
     except Exception as exp:
         err("arraylist", "remove_first()", exp)
 
@@ -208,14 +208,14 @@ def remove_last(lt: dict) -> Any:
         lt (dict): array list to remove the last element.
 
     Returns:
-        Any: returns the array list without the last element.
+        Any: returns the array list without the last element. None if the array list is empty.
     """
     try:
         if lt.get("size") == 0:
             return None
-        elm = lt.get("elements").pop(lt.get("size") - 1)
+        lt.get("elements").pop(lt.get("size") - 1)
         lt["size"] -= 1
-        return elm
+        return lt
     except Exception as exp:
         err("arraylist", "remove_last()", exp)
 
@@ -228,14 +228,14 @@ def remove_element(lt: dict, pos: int) -> Any:
         pos (int): position to remove the element.
 
     Returns:
-        Any: returns the array list without the element in the specific position.
+        Any: returns the array list without the element in the specific position. None if the position is invalid.
     """
     try:
         if pos < 0 or pos >= lt.get("size"):
             return None
-        elm = lt.get("elements").pop(pos)
+        lt.get("elements").pop(pos)
         lt["size"] -= 1
-        return elm
+        return lt
     except Exception as exp:
         err("arraylist", "remove_element()", exp)
 
@@ -250,7 +250,6 @@ def update(lt: dict, pos: int, element: Any) -> None:
     """
     try:
         lt["elements"][pos] = element
-        # lt.get("elements")[pos] = element
     except Exception as exp:
         err("arraylist", "update()", exp)
 
@@ -272,8 +271,8 @@ def exchange(lt: dict, pos1: int, pos2: int) -> None:
         err("arraylist", "exchange()", exp)
 
 
-def cmp_elements(lt: dict, elm1: Any, elm2: Any) -> bool:
-    """cmp_elements compares two elements in the array list.
+def compare(lt: dict, elm1: Any, elm2: Any) -> bool:
+    """compare compares two elements in the array list.
 
     Args:
         lt (dict): array list to compare the elements.
@@ -291,11 +290,11 @@ def cmp_elements(lt: dict, elm1: Any, elm2: Any) -> bool:
         else:
             return _cmp(elm1, elm2) == 0
     except Exception as exp:
-        err("arraylist", "cmp_elements()", exp)
+        err("arraylist", "compare()", exp)
 
 
-def is_present(lt: dict, element: Any) -> int:
-    """is_present checks if an element is present in the array list.
+def find(lt: dict, element: Any) -> int:
+    """find checks if an element is present in the array list.
 
     Args:
         lt (dict): array list to check.
@@ -310,13 +309,13 @@ def is_present(lt: dict, element: Any) -> int:
         i = 0
         while not found and idx < lt.get("size"):
             temp = get_element(lt, i)
-            if cmp_elements(lt, element, temp) is True:
+            if compare(lt, element, temp) is True:
                 found = True
                 idx = i
             idx += 1
         return idx
     except Exception as exp:
-        err("arraylist", "is_present()", exp)
+        err("arraylist", "find()", exp)
 
 
 def sub_list(lt: dict, start: int, end: int) -> dict:
@@ -328,40 +327,18 @@ def sub_list(lt: dict, start: int, end: int) -> dict:
         end (int): end position of the sub list, exclusive, less than the size of the array list.
 
     Returns:
-        dict: returns a new sub list from start to end
+        dict: returns a new sub list of the array list from start to end.
     """
     try:
-        sub_lt = new_array_lt(lt.get("cmp_function"),
-                              lt.get("key"))
+        sub_lt = new_list(lt.get("cmp_function"),
+                          lt.get("key"))
         i = start
         while i < end:
             add_last(sub_lt, get_element(lt, i))
             i += 1
         return sub_lt
-        # i = 0
-        # while i < lt.get("size") - 1:
-        #     if i >= start and i < end + 1:
-        #         add_last(sub_lt, get_element(lt, i))
-        #     i += 1
-        # return sub_lt
     except Exception as exp:
         err("arraylist", "sub_list()", exp)
-
-
-def iterator(lt: dict) -> object:
-    """iterator returns an iterator for the array list.
-
-    Args:
-        lt (dict): array list to iterate.
-
-    Yields:
-        arraylist: returns the elements in the array list.
-    """
-    try:
-        for pos in range(0, lt.get("size")):
-            yield lt.get("elements")[pos]
-    except Exception as exp:
-        err("arraylist", "iterator()", exp)
 
 
 def concat(lt1: dict, lt2: dict) -> dict:
@@ -375,10 +352,48 @@ def concat(lt1: dict, lt2: dict) -> dict:
         dict: returns a new array list with the elements of lt1 and lt2.
     """
     try:
-        new_lt = new_array_lt(lt1.get("cmp_function"), lt1.get("key"))
+        new_lt = new_list(lt1.get("cmp_function"), lt1.get("key"))
         _elements = lt1.get("elements") + lt2.get("elements")
         new_lt.update({"elements": _elements})
         new_lt.update({"size": len(_elements)})
         return new_lt
     except Exception as exp:
         err("arraylist", "concat()", exp)
+
+
+def clone(lt: dict) -> dict:
+    """clone clones an array list. We don't name the function as copy to avoid confusion with the python copy module.
+
+    Args:
+        lt (dict): array list to clone.
+
+    Returns:
+        dict: returns a new array list with the same elements as lt.
+    """
+    try:
+        new_lt = new_list(lt.get("cmp_function"),
+                          lt.get("key"))
+        for elm in iterator(lt):
+            add_last(new_lt, elm)
+        return new_lt
+    except Exception as exp:
+        err("arraylist", "clone()", exp)
+
+
+def iterator(lt: dict) -> object:
+    """iterator returns an iterator for the array list.
+
+    Args:
+        lt (dict): array list to iterate.
+
+    Returns:
+        object: returns an iterator for the array list.
+
+    Yields:
+        Iterator[object]: returns an iterator for the array list.
+    """
+    try:
+        for pos in range(0, lt.get("size")):
+            yield lt.get("elements")[pos]
+    except Exception as exp:
+        err("arraylist", "iterator()", exp)
